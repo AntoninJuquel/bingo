@@ -32,3 +32,16 @@ export async function readBingoFiles(files: File[]) {
     }
     return bingo;
 }
+
+export async function loadBingoUrl(url: string) {
+    const response = await fetch(url);
+    const text = await response.text();
+    const bingo: Bingo = [];
+    if(text) {
+        const items = JSON.parse(text) as Bingo
+        if (Array.isArray(items) && items.length && items.every(item => typeof item === "string")) {
+            bingo.push(...items);
+        }
+    }
+    return bingo;
+}

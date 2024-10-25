@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button"
 import ItemsList from "./BingoItems";
 import ExportButton from "./ExportButton";
-import { readBingoFiles } from '@/lib/bingoFile';
+import { loadBingoUrl, readBingoFiles } from '@/lib/bingo';
 
 const formSchema = z.object({
     item: z.string().min(2),
@@ -31,8 +31,15 @@ export default function Builder() {
             item: "",
         },
     })
-    function onSubmit({ item }: z.infer<typeof formSchema>) {
-        addBingoItems([item])
+
+    async function onSubmit({ item }: z.infer<typeof formSchema>) {
+        try {
+            const url = new URL(item)
+            const bingo = await loadBingoUrl(url.href)
+            addBingoItems(bingo)
+        } catch (error) {
+            addBingoItems([item])
+        }
         form.reset()
     }
 
@@ -58,7 +65,7 @@ export default function Builder() {
                                 <FormItem>
                                     <FormControl>
                                         <div className="flex w-full items-center space-x-2">
-                                            <Input placeholder="Search or Create item" {...field} />
+                                            <Input placeholder="Search or Create item | Paste a bingo list url" {...field} />
                                             <Button type="submit" size="icon">
                                                 <Plus className="h-4 w-4" />
                                             </Button>
